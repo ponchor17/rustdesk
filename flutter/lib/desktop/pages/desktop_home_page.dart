@@ -74,7 +74,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
 
-  // ALKATECHS-v3 — website-selected language
+  // ALKATECHS-v4 — attended customer UI without settings gear
   // Only the customer-facing home screen is replaced. The original RustDesk
   // connection/permission handlers and the Security settings remain available.
   Widget _buildAlkatechsSupportHome(BuildContext context) {
@@ -119,11 +119,21 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             ],
                           ),
                           const Spacer(),
-                          Tooltip(
-                            message: t('Advanced security settings', 'Ajustes avanzados de seguridad'),
-                            child: IconButton(
-                              icon: const Icon(Icons.settings_outlined, color: muted),
-                              onPressed: () => DesktopSettingPage.switch2page(SettingsTabKey.safety),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEAF4FF),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.shield_outlined, size: 15, color: blue),
+                                const SizedBox(width: 6),
+                                Text(t('Attended support', 'Soporte asistido'),
+                                    style: const TextStyle(color: navy,
+                                        fontSize: 11, fontWeight: FontWeight.w700)),
+                              ],
                             ),
                           ),
                         ],
@@ -190,8 +200,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                     approvalEnabled
                                         ? t('Click approval enabled — no password required',
                                             'Aprobación por clic activada — sin contraseña')
-                                        : t('Approval mode needs checking in Security settings',
-                                            'Revisa el modo de aprobación en Seguridad'),
+                                        : t('Approval is not ready — contact ALKATECHS support',
+                                            'La aprobación no está lista — contacta a ALKATECHS'),
                                     style: TextStyle(fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: approvalEnabled

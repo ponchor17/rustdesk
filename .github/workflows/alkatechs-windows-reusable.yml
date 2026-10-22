@@ -429,7 +429,7 @@ jobs:
       - name: Upload ALKATECHS English and Spanish unsigned portables
         uses: actions/upload-artifact@v4
         with:
-          name: ALKATECHS-Support-Windows-EN-ES-Unsigned
+          name: ALKATECHS-Support-Windows-v4-EN-ES-Unsigned
           path: |
             ./SignOutput/ALKATECHS-Support-EN.exe
             ./SignOutput/ALKATECHS-Support-ES.exe
