@@ -6,9 +6,6 @@ name: ALKATECHS Windows x64 pilot
 on:
   push:
     branches: [alkatechs-windows]
-    paths:
-      - .github/workflows/alkatechs-oss-build.yml
-      - .github/workflows/alkatechs-windows-reusable.yml
   workflow_dispatch:
 permissions:
   contents: read
