@@ -124,7 +124,7 @@ pub fn global_init() -> bool {
     // ALKATECHS ATTENDED SUPPORT DEFAULTS: embedded in this OSS build, never a separate downloader.
     // Enforce self-hosted ID server, public key, and customer click approval.
     // No permanent password is configured here.
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     {
         hbb_common::config::Config::set_option(
             "custom-rendezvous-server".to_owned(), "rd.alkatechs.com".to_owned());

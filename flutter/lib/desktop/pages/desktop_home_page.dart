@@ -58,7 +58,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (Platform.isWindows) {
+    // ALKATECHS MACOS PILOT
+    if (Platform.isWindows || Platform.isMacOS) {
       return _buildBlock(child: _buildAlkatechsSupportHome(context));
     }
     final isIncomingOnly = bind.isIncomingOnly();
@@ -243,10 +244,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                t('Portable support: Windows administrator/UAC screens may require '
-                                    'additional approval or elevation. Your technician will explain if needed.',
-                                    'Soporte portátil: algunas pantallas de administrador/UAC '
-                                    'pueden necesitar autorización adicional. Tu técnico te indicará si es necesario.'),
+                                Platform.isMacOS
+                                  ? t('macOS: Allow Screen Recording and Accessibility in System Settings '
+                                      'when prompted. You can stop sharing or quit the app at any time.',
+                                      'macOS: Autoriza Grabación de pantalla y Accesibilidad en Configuración '
+                                      'del Sistema cuando se soliciten. Puedes terminar la sesión cuando quieras.')
+                                  : t('Portable support: Windows administrator/UAC screens may require '
+                                      'additional approval or elevation. Your technician will explain if needed.',
+                                      'Soporte portátil: algunas pantallas de administrador/UAC '
+                                      'pueden necesitar autorización adicional. Tu técnico te indicará si es necesario.'),
                                 style: const TextStyle(fontSize: 11, height: 1.4, color: muted),
                               ),
                             ),
