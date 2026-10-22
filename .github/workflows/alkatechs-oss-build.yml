@@ -1,0 +1,23 @@
+# Entry point for the official RustDesk OSS Flutter build machinery in YOUR fork.
+# WARNING: The upstream reusable workflow builds more than Windows; it is resource intensive.
+# Requires upstream .github/workflows/flutter-build.yml from the same pinned source revision.
+name: ALKATECHS OSS portable build (pilot)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  official-rustdesk-source-build:
+    uses: ./.github/workflows/flutter-build.yml
+    permissions:
+      contents: write
+      actions: write
+    with:
+      upload-artifact: true
+      upload-tag: alkatechs-oss-pilot
+      publish-update-metadata: false
+    secrets: inherit

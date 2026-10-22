@@ -121,6 +121,19 @@ impl Drop for SimpleCallOnReturn {
 }
 
 pub fn global_init() -> bool {
+    // ALKATECHS ATTENDED SUPPORT DEFAULTS: embedded in this OSS build, never a separate downloader.
+    // Enforce self-hosted ID server, public key, and customer click approval.
+    // No permanent password is configured here.
+    #[cfg(target_os = "windows")]
+    {
+        hbb_common::config::Config::set_option(
+            "custom-rendezvous-server".to_owned(), "rd.alkatechs.com".to_owned());
+        hbb_common::config::Config::set_option(
+            "key".to_owned(), "eJHHHrBmnkmAX305JO4GybwdJBKM4S8CboD+VtsZ8SY=".to_owned());
+        hbb_common::config::Config::set_option(
+            "approve-mode".to_owned(), "click".to_owned());
+    }
+
     #[cfg(all(target_os = "linux", feature = "drm"))]
     crate::platform::linux::dispatch_wayland_display_probe();
     #[cfg(target_os = "linux")]
