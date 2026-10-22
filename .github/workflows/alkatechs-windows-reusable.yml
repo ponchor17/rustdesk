@@ -392,9 +392,45 @@ jobs:
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.exe
 
-      - name: Upload ALKATECHS unsigned portable EXE
+      # The upstream self-extracting portable step produces the EN default build.
+      - name: Save English ALKATECHS support executable
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem -Path './SignOutput' -Filter 'rustdesk-*-x86_64.exe' -File)
+          if ($files.Count -ne 1) { throw "Expected 1 upstream portable EXE; found $($files.Count)" }
+          Copy-Item $files[0].FullName './SignOutput/ALKATECHS-Support-EN.exe' -Force
+
+      # Rebuild only the Flutter UI using the existing Rust libraries/dependencies.
+      # This embeds Spanish regardless of customer Windows language.
+      - name: Compile Spanish ALKATECHS Flutter UI
+        shell: pwsh
+        run: |
+          Push-Location './flutter'
+          try {
+            flutter build windows --release --dart-define=ALKATECHS_LANG=es
+            if ($LASTEXITCODE -ne 0) { throw 'Spanish Flutter build failed' }
+          } finally {
+            Pop-Location
+          }
+          $release = './flutter/build/windows/x64/runner/Release'
+          if (!(Test-Path "$release/rustdesk.exe")) { throw 'Spanish exe not found in Flutter Release folder' }
+          Copy-Item "$release/*" './rustdesk/' -Recurse -Force
+
+      - name: Package Spanish ALKATECHS portable executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          pushd ./libs/portable
+          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          popd
+          test -f ./target/release/rustdesk-portable-packer.exe
+          mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/ALKATECHS-Support-ES.exe
+
+      - name: Upload ALKATECHS English and Spanish unsigned portables
         uses: actions/upload-artifact@v4
         with:
-          name: ALKATECHS-Windows-x64-Portable-Unsigned
-          path: ./SignOutput/rustdesk-*-x86_64.exe
+          name: ALKATECHS-Support-Windows-EN-ES-Unsigned
+          path: |
+            ./SignOutput/ALKATECHS-Support-EN.exe
+            ./SignOutput/ALKATECHS-Support-ES.exe
           if-no-files-found: error

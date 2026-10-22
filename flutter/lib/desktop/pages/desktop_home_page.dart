@@ -74,11 +74,11 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
 
-  // ALKATECHS-CUSTOMER-UI-v2
+  // ALKATECHS-v3 — website-selected language
   // Only the customer-facing home screen is replaced. The original RustDesk
   // connection/permission handlers and the Security settings remain available.
   Widget _buildAlkatechsSupportHome(BuildContext context) {
-    final es = Localizations.localeOf(context).languageCode.toLowerCase() == 'es';
+    const es = String.fromEnvironment('ALKATECHS_LANG', defaultValue: 'en') == 'es';
     const navy = Color(0xFF10223B);
     const blue = Color(0xFF2378F8);
     const muted = Color(0xFF61718A);
@@ -92,6 +92,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           final id = model.serverId.text.trim();
           final approvalEnabled = model.approveMode == 'click';
           return Container(
+            constraints: const BoxConstraints.expand(),
             color: const Color(0xFFF6F9FD),
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
@@ -253,6 +254,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             onPressed: () => launchUrl(Uri.parse(es
                                 ? 'https://alkatechs.com/es/support/'
                                 : 'https://alkatechs.com/en/support/')),
+                            style: TextButton.styleFrom(foregroundColor: blue, backgroundColor: const Color(0xFFE8F1FF)),
                             child: Text(t('Help', 'Ayuda')),
                           ),
                         ],
