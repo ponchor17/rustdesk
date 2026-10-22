@@ -58,6 +58,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    if (Platform.isWindows) {
+      return _buildBlock(child: _buildAlkatechsSupportHome(context));
+    }
     final isIncomingOnly = bind.isIncomingOnly();
     return _buildBlock(
         child: Row(
@@ -68,6 +71,225 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         if (!isIncomingOnly) Expanded(child: buildRightPane(context)),
       ],
     ));
+  }
+
+
+  // ALKATECHS-CUSTOMER-UI-v2
+  // Only the customer-facing home screen is replaced. The original RustDesk
+  // connection/permission handlers and the Security settings remain available.
+  Widget _buildAlkatechsSupportHome(BuildContext context) {
+    final es = Localizations.localeOf(context).languageCode.toLowerCase() == 'es';
+    const navy = Color(0xFF10223B);
+    const blue = Color(0xFF2378F8);
+    const muted = Color(0xFF61718A);
+    const border = Color(0xFFDCE5F0);
+    String t(String english, String spanish) => es ? spanish : english;
+
+    return ChangeNotifierProvider<ServerModel>.value(
+      value: gFFI.serverModel,
+      child: Consumer<ServerModel>(
+        builder: (context, model, _) {
+          final id = model.serverId.text.trim();
+          final approvalEnabled = model.approveMode == 'click';
+          return Container(
+            color: const Color(0xFFF6F9FD),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 660),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset('assets/alkatechs-network.png',
+                              width: 50, height: 50, fit: BoxFit.contain),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('ALKATECHS',
+                                  style: TextStyle(fontSize: 22, letterSpacing: 1.1,
+                                      fontWeight: FontWeight.w800, color: navy)),
+                              const Text('REMOTE SUPPORT',
+                                  style: TextStyle(fontSize: 10, letterSpacing: 2,
+                                      fontWeight: FontWeight.w700, color: blue)),
+                            ],
+                          ),
+                          const Spacer(),
+                          Tooltip(
+                            message: t('Advanced security settings', 'Ajustes avanzados de seguridad'),
+                            child: IconButton(
+                              icon: const Icon(Icons.settings_outlined, color: muted),
+                              onPressed: () => DesktopSettingPage.switch2page(SettingsTabKey.safety),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(t('Support is just a click away.',
+                              'La asistencia está a un clic.'),
+                          style: const TextStyle(fontSize: 24, height: 1.2,
+                              fontWeight: FontWeight.w800, color: navy)),
+                      const SizedBox(height: 6),
+                      Text(t('Share your support ID with your ALKATECHS technician. '
+                              'You remain in control of the session.',
+                              'Comparte tu ID con tu técnico de ALKATECHS. '
+                              'Tú mantienes el control de la sesión.'),
+                          style: const TextStyle(fontSize: 13, color: muted, height: 1.45)),
+                      const SizedBox(height: 18),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 19),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: border),
+                          boxShadow: const [BoxShadow(color: Color(0x0A1B4781),
+                              blurRadius: 18, offset: Offset(0, 7))],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(t('YOUR SUPPORT ID', 'TU ID DE SOPORTE'),
+                                style: const TextStyle(fontSize: 11, letterSpacing: 1.5,
+                                    color: muted, fontWeight: FontWeight.w800)),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SelectableText(
+                                    id.isEmpty ? t('Connecting…', 'Conectando…') : id,
+                                    style: const TextStyle(fontSize: 31,
+                                        letterSpacing: 2, fontWeight: FontWeight.w800, color: navy),
+                                  ),
+                                ),
+                                FilledButton.icon(
+                                  onPressed: id.isEmpty ? null : () async {
+                                    await Clipboard.setData(ClipboardData(text: id));
+                                    showToast(t('Support ID copied', 'ID de soporte copiado'));
+                                  },
+                                  icon: const Icon(Icons.copy_outlined, size: 16),
+                                  label: Text(t('Copy ID', 'Copiar ID')),
+                                  style: FilledButton.styleFrom(backgroundColor: blue,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Icon(approvalEnabled ? Icons.verified_user_outlined : Icons.warning_amber_outlined,
+                                    size: 17, color: approvalEnabled
+                                        ? const Color(0xFF168763) : const Color(0xFFB26B13)),
+                                const SizedBox(width: 7),
+                                Expanded(
+                                  child: Text(
+                                    approvalEnabled
+                                        ? t('Click approval enabled — no password required',
+                                            'Aprobación por clic activada — sin contraseña')
+                                        : t('Approval mode needs checking in Security settings',
+                                            'Revisa el modo de aprobación en Seguridad'),
+                                    style: TextStyle(fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: approvalEnabled
+                                            ? const Color(0xFF168763) : const Color(0xFFB26B13)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 17),
+                      Row(
+                        children: [
+                          Expanded(child: _alkatechsStep('01',
+                              t('Share ID', 'Comparte tu ID'),
+                              t('Tell the technician your ID.', 'Indica tu ID al técnico.'))),
+                          const SizedBox(width: 9),
+                          Expanded(child: _alkatechsStep('02',
+                              t('Approve', 'Aprueba'),
+                              t('Accept the incoming request.', 'Acepta la solicitud.'))),
+                          const SizedBox(width: 9),
+                          Expanded(child: _alkatechsStep('03',
+                              t('Get help', 'Recibe ayuda'),
+                              t('End the session anytime.', 'Termina cuando quieras.'))),
+                        ],
+                      ),
+                      const SizedBox(height: 17),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0F5FC),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.info_outline, color: blue, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                t('Portable support: Windows administrator/UAC screens may require '
+                                    'additional approval or elevation. Your technician will explain if needed.',
+                                    'Soporte portátil: algunas pantallas de administrador/UAC '
+                                    'pueden necesitar autorización adicional. Tu técnico te indicará si es necesario.'),
+                                style: const TextStyle(fontSize: 11, height: 1.4, color: muted),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Icon(Icons.lock_outline, size: 14, color: muted),
+                          const SizedBox(width: 5),
+                          const Expanded(child: Text('rd.alkatechs.com  ·  Powered by RustDesk OSS',
+                              style: TextStyle(fontSize: 11, color: muted))),
+                          TextButton(
+                            onPressed: () => launchUrl(Uri.parse(es
+                                ? 'https://alkatechs.com/es/support/'
+                                : 'https://alkatechs.com/en/support/')),
+                            child: Text(t('Help', 'Ayuda')),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _alkatechsStep(String number, String title, String description) {
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(color: const Color(0xFFE0E8F2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(number, style: const TextStyle(color: Color(0xFF2378F8),
+              fontSize: 12, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 5),
+          Text(title, style: const TextStyle(color: Color(0xFF10223B),
+              fontSize: 13, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(description, style: const TextStyle(color: Color(0xFF61718A),
+              fontSize: 11, height: 1.25)),
+        ],
+      ),
+    );
   }
 
   Widget _buildBlock({required Widget child}) {
